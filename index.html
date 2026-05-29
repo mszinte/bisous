@@ -7,7 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #faf9f7;
@@ -18,7 +17,6 @@
     padding: 1rem;
     color: #1a1a1a;
   }
-
   .card {
     background: white;
     border-radius: 16px;
@@ -28,17 +26,7 @@
     width: 100%;
     text-align: center;
   }
-
   .heart { font-size: 2.5rem; margin-bottom: 1rem; }
-
-  .bisou-num {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 0.4rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
   .title {
     font-size: 17px;
     font-weight: 500;
@@ -46,27 +34,29 @@
     margin-bottom: 1.75rem;
     line-height: 1.5;
   }
-
-  .input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 0.75rem;
+  .field { margin-bottom: 0.75rem; text-align: left; }
+  label {
+    font-size: 13px;
+    color: #888;
+    display: block;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
-
-  input[type="password"], input[type="text"] {
-    flex: 1;
-    padding: 0.6rem 0.85rem;
+  input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 15px;
     outline: none;
     transition: border-color 0.2s;
   }
-
   input:focus { border-color: #c9a0a0; }
-
-  button {
-    padding: 0.6rem 1.1rem;
+  .btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
     background: #c9a0a0;
     color: white;
     border: none;
@@ -74,18 +64,14 @@
     font-size: 15px;
     cursor: pointer;
     transition: background 0.2s;
-    white-space: nowrap;
   }
-
-  button:hover { background: #b88888; }
-
+  .btn:hover { background: #b88888; }
   .error {
     font-size: 13px;
     color: #c0392b;
-    margin-top: 0.4rem;
+    margin-top: 0.75rem;
     display: none;
   }
-
   .msg-box {
     background: #faf9f7;
     border-radius: 10px;
@@ -98,39 +84,45 @@
     margin-top: 1.25rem;
     display: none;
   }
-
   .date-hint {
     font-size: 12px;
     color: #aaa;
     margin-top: 0.75rem;
     font-style: italic;
   }
-
-  .not-found {
-    font-size: 15px;
-    color: #888;
-    line-height: 1.6;
-  }
-
   .show-pwd {
     background: none;
     border: none;
     color: #aaa;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
-    padding: 0;
-    margin-top: 0.25rem;
+    padding: 0.2rem 0;
     text-decoration: underline;
+    display: block;
+    margin-top: 0.25rem;
   }
-
-  .show-pwd:hover { color: #888; background: none; }
 </style>
 </head>
 <body>
-
-<div class="card" id="app">
+<div class="card">
   <div class="heart">💌</div>
-  <div id="content"></div>
+  <div class="title">Entre le numéro du bisou et le mot de passe</div>
+
+  <div class="field">
+    <label>Numéro du bisou</label>
+    <input type="number" id="bisou-input" placeholder="ex. 57" min="1" />
+  </div>
+
+  <div class="field">
+    <label>Mot de passe</label>
+    <input type="password" id="pwd-input" placeholder="ex. husky57" />
+    <button class="show-pwd" onclick="togglePwd()">Afficher</button>
+  </div>
+
+  <button class="btn" onclick="check()">Révéler le message ✨</button>
+
+  <div class="error" id="err"></div>
+  <div class="msg-box" id="msg"></div>
 </div>
 
 <script>
@@ -176,73 +168,52 @@
     999: { text: "J'aime que, malgré nos disputes, tu sois toujours là.", date: null }
   };
 
-  function getBisouFromURL() {
-    const path = window.location.pathname;
-    const parts = path.split('/');
-    const last = parts[parts.length - 1];
-    const n = parseInt(last);
-    return isNaN(n) ? null : n;
+  function togglePwd() {
+    const inp = document.getElementById('pwd-input');
+    const btn = event.target;
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Masquer'; }
+    else { inp.type = 'password'; btn.textContent = 'Afficher'; }
   }
 
-  function sendNotification(bisou, msg) {
+  function check() {
+    const bisou = parseInt(document.getElementById('bisou-input').value);
+    const pwd = document.getElementById('pwd-input').value.trim().toLowerCase();
+    const err = document.getElementById('err');
+    const msgBox = document.getElementById('msg');
+
+    err.style.display = 'none';
+    msgBox.style.display = 'none';
+
+    if (!bisou) {
+      err.textContent = 'Entre le numéro du bisou.';
+      err.style.display = 'block';
+      return;
+    }
+
+    if (!messages[bisou]) {
+      err.textContent = 'Ce numéro de bisou n\'existe pas — pas de triche ! 😄';
+      err.style.display = 'block';
+      return;
+    }
+
+    if (pwd !== 'husky' + bisou) {
+      err.textContent = 'Mauvais mot de passe — pas de triche !';
+      err.style.display = 'block';
+      return;
+    }
+
+    const data = messages[bisou];
+    msgBox.innerHTML = data.text + (data.date ? `<div class="date-hint">Écrit le ${data.date}</div>` : '');
+    msgBox.style.display = 'block';
+
     emailjs.send('service_e7w7x1i', 'template_ksarrmw', {
       bisou: bisou,
-      message: msg,
+      message: data.text,
       to_email: 'martin.szinte@gmail.com'
     }).catch(() => {});
   }
 
-  function togglePwd(inputId, btn) {
-    const inp = document.getElementById(inputId);
-    if (inp.type === 'password') {
-      inp.type = 'text';
-      btn.textContent = 'Masquer';
-    } else {
-      inp.type = 'password';
-      btn.textContent = 'Afficher';
-    }
-  }
-
-  function check(bisou, correct) {
-    const val = document.getElementById('pwd').value.trim().toLowerCase();
-    const msg = document.getElementById('msg');
-    const err = document.getElementById('err');
-    if (val === correct) {
-      msg.style.display = 'block';
-      err.style.display = 'none';
-      sendNotification(bisou, messages[bisou].text);
-    } else {
-      err.style.display = 'block';
-      msg.style.display = 'none';
-    }
-  }
-
-  const bisou = getBisouFromURL();
-  const content = document.getElementById('content');
-
-  if (bisou && messages[bisou]) {
-    const data = messages[bisou];
-    const pwd = 'husky' + bisou;
-    content.innerHTML = `
-      <div class="bisou-num">Bisou n° ${bisou}</div>
-      <div class="title">Entre le mot de passe pour révéler mon message</div>
-      <div class="input-row">
-        <input type="password" id="pwd" placeholder="${pwd}" />
-        <button onclick="check(${bisou}, '${pwd}')">Révéler</button>
-      </div>
-      <button class="show-pwd" onclick="togglePwd('pwd', this)">Afficher</button>
-      <div class="error" id="err">Mauvais mot de passe — pas de triche !</div>
-      <div class="msg-box" id="msg">
-        ${data.text}
-        ${data.date ? `<div class="date-hint">Écrit le ${data.date}</div>` : ''}
-      </div>
-    `;
-    document.getElementById('pwd').addEventListener('keydown', e => {
-      if (e.key === 'Enter') check(bisou, pwd);
-    });
-  } else {
-    content.innerHTML = `<div class="not-found">Ce lien ne correspond à aucun bisou.<br>Vérifie l'URL et réessaie 🐾</div>`;
-  }
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
 </script>
 </body>
 </html>
