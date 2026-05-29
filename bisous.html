@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Un message pour toi 💌</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #faf9f7;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: #1a1a1a;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e8e6e1;
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .heart { font-size: 2.5rem; margin-bottom: 1rem; }
+
+  .bisou-num {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .title {
+    font-size: 17px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 1.75rem;
+    line-height: 1.5;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  input[type="password"], input[type="text"] {
+    flex: 1;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: #c9a0a0; }
+
+  button {
+    padding: 0.6rem 1.1rem;
+    background: #c9a0a0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  button:hover { background: #b88888; }
+
+  .error {
+    font-size: 13px;
+    color: #c0392b;
+    margin-top: 0.4rem;
+    display: none;
+  }
+
+  .msg-box {
+    background: #faf9f7;
+    border-radius: 10px;
+    border: 1px solid #e8e6e1;
+    padding: 1.25rem;
+    font-size: 16px;
+    color: #1a1a1a;
+    line-height: 1.7;
+    text-align: left;
+    margin-top: 1.25rem;
+    display: none;
+  }
+
+  .date-hint {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  .not-found {
+    font-size: 15px;
+    color: #888;
+    line-height: 1.6;
+  }
+
+  .show-pwd {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 0.25rem;
+    text-decoration: underline;
+  }
+
+  .show-pwd:hover { color: #888; background: none; }
+</style>
+</head>
+<body>
+
+<div class="card" id="app">
+  <div class="heart">💌</div>
+  <div id="content"></div>
+</div>
+
+<script>
+  emailjs.init('eXtndlQ7kx5cu_cWO');
+
+  const messages = {
+    5:   { text: "J'aime la douceur de ta peau, de tes baisers et aussi de ton âme.", date: "5 juillet" },
+    17:  { text: "J'aime ton côté câlin.", date: null },
+    28:  { text: "J'aime te sentir coller à moi sous la couette.", date: "9 juillet" },
+    43:  { text: "J'aime ton envie de passer tes nuits avec moi, de dormir à mes côtés, et le fait qu'elle dorme mieux avec moi que sans moi.", date: "10 juillet" },
+    57:  { text: "J'aime ta façon de me regarder, moi, au bord du lit, toi, emmitouflée sous ta couette.", date: "15 décembre" },
+    71:  { text: "J'aime ton envie de m'accompagner au petit déjeuner même si tu veux en fait dormir.", date: "6 mars" },
+    83:  { text: "J'aime te voir revenir de la douche pleine d'envie pour moi.", date: "25 mai" },
+    107: { text: "J'aime ta parfaite imperfection.", date: "6 juillet" },
+    124: { text: "J'aime tes yeux en demi-lune bleus turquoises… qui semblent doux, et incapables de faire du mal.", date: "7 juillet" },
+    143: { text: "J'aime que tu sois forte et sensible, fragile et intacte.", date: "6 juillet" },
+    163: { text: "J'aime ton style, toujours bien habillée avec des fringues colorées, simples et belles.", date: "12 juillet" },
+    184: { text: "J'aime ta souplesse, tes longues et belles jambes parfois bleutées que tu peux sans gêne aligner avec ton corps, voire derrière ta tête.", date: "10 octobre" },
+    213: { text: "J'aime ta débrouillardise tout terrain, en randonnée 3 étoiles, sur un vélo, en haut d'un saut de 9m, en grimpant sur une grande voie.", date: "12 janvier" },
+    237: { text: "J'aime ton envie de tester et découvrir autant de choses que moi sans restrictions ou craintes.", date: "24 mars" },
+    268: { text: "J'aime te voir détendue après un effort, resplendissante.", date: "18 août" },
+    304: { text: "J'aime que tu sois une transclasse qui partage mes opinions politiques sur les classes dominantes héritées.", date: "25 février" },
+    341: { text: "J'aime ta capacité à me comprendre, et savoir voir aussi bien mes qualités que mes défauts.", date: "8 juillet" },
+    387: { text: "J'aime la façon dont tu me perçois et me donnes de la confiance en moi.", date: "24 décembre" },
+    412: { text: "J'aime ton écoute intéressée, ton envie d'échanger, de me donner ton avis et de partager tes connaissances.", date: "11 juillet" },
+    438: { text: "J'aime qu'on soit souvent d'accord même si on aime tous deux le débat.", date: "15 avril" },
+    461: { text: "J'aime que tu m'écoutes et que tu tiennes compte de mes avis.", date: "16 mai" },
+    489: { text: "J'aime ton envie de faire partie de ma vie, ton envie de t'attacher sans réserve.", date: "13 juillet" },
+    517: { text: "J'aime ton envie partagée de vouloir me voir tout le temps.", date: "13 juillet" },
+    548: { text: "J'aime que tu veuilles te débrouiller seule en refusant de te reposer sur les classiques de genre.", date: "17 août" },
+    573: { text: "J'aime ta disponibilité pour moi quand je vais moins bien.", date: "22 septembre" },
+    608: { text: "J'aime que tu cherches en moi du soutien quand tu vas mal.", date: "19 août" },
+    637: { text: "J'aime que tu fasses tout pour avoir une belle relation avec mes filles.", date: "23 décembre" },
+    664: { text: "J'aime que tu veuilles faire avec moi des projets communs (une cabane low-tech), des voyages communs, et partir en aventures avec moi.", date: "21 décembre" },
+    698: { text: "J'aime que tu aimes faire la fête comme moi et avec moi.", date: "15 novembre" },
+    724: { text: "J'aime ta jalousie, toujours à moitié cachée derrière d'autres aspects mais néanmoins si évidente.", date: "12 mars" },
+    758: { text: "J'aime que, malgré nos disputes et nos mots lancés en l'air, tu n'aies comme moi jamais vraiment pensé à me quitter.", date: "25 mai" },
+    797: { text: "J'aime te voir arriver toute belle me rejoindre et savoir que c'est moi ce chanceux à qui ces efforts sont destinés.", date: "25 avril" },
+    823: { text: "J'aime qu'on ait développé des méthodes de communication qui nous conviennent.", date: "20 mai" },
+    849: { text: "J'aimerais que tu viennes vivre avec moi à partir du mois d'août.", date: null },
+    867: { text: "J'aime ta volonté de m'aider sur mes problèmes de colère.", date: "9 mars" },
+    921: { text: "J'aime ton indécision sur le futur, sur ta volonté d'être mère.", date: "3 juin" },
+    999: { text: "J'aime que, malgré nos disputes, tu sois toujours là.", date: null }
+  };
+
+  function getBisouFromURL() {
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    const last = parts[parts.length - 1];
+    const n = parseInt(last);
+    return isNaN(n) ? null : n;
+  }
+
+  function sendNotification(bisou, msg) {
+    emailjs.send('service_e7w7x1i', 'template_ksarrmw', {
+      bisou: bisou,
+      message: msg,
+      to_email: 'martin.szinte@gmail.com'
+    }).catch(() => {});
+  }
+
+  function togglePwd(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      btn.textContent = 'Masquer';
+    } else {
+      inp.type = 'password';
+      btn.textContent = 'Afficher';
+    }
+  }
+
+  function check(bisou, correct) {
+    const val = document.getElementById('pwd').value.trim().toLowerCase();
+    const msg = document.getElementById('msg');
+    const err = document.getElementById('err');
+    if (val === correct) {
+      msg.style.display = 'block';
+      err.style.display = 'none';
+      sendNotification(bisou, messages[bisou].text);
+    } else {
+      err.style.display = 'block';
+      msg.style.display = 'none';
+    }
+  }
+
+  const bisou = getBisouFromURL();
+  const content = document.getElementById('content');
+
+  if (bisou && messages[bisou]) {
+    const data = messages[bisou];
+    const pwd = 'husky' + bisou;
+    content.innerHTML = `
+      <div class="bisou-num">Bisou n° ${bisou}</div>
+      <div class="title">Entre le mot de passe pour révéler mon message</div>
+      <div class="input-row">
+        <input type="password" id="pwd" placeholder="${pwd}" />
+        <button onclick="check(${bisou}, '${pwd}')">Révéler</button>
+      </div>
+      <button class="show-pwd" onclick="togglePwd('pwd', this)">Afficher</button>
+      <div class="error" id="err">Mauvais mot de passe — pas de triche !</div>
+      <div class="msg-box" id="msg">
+        ${data.text}
+        ${data.date ? `<div class="date-hint">Écrit le ${data.date}</div>` : ''}
+      </div>
+    `;
+    document.getElementById('pwd').addEventListener('keydown', e => {
+      if (e.key === 'Enter') check(bisou, pwd);
+    });
+  } else {
+    content.innerHTML = `<div class="not-found">Ce lien ne correspond à aucun bisou.<br>Vérifie l'URL et réessaie 🐾</div>`;
+  }
+</script>
+</body>
+</html>
